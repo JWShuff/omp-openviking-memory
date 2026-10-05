@@ -15,6 +15,7 @@ import { OVClient } from "../src/client.js";
 import { RecallManager } from "../src/recall.js";
 import { RecallLedger } from "../shared/recall-ledger.mjs";
 import { SyncManager } from "../src/sync.js";
+import { getContextUserEntryIds } from "../shared/context-entry-ids.mjs";
 import { buildProfileBlock } from "../shared/profile-inject.mjs";
 import { guardVikingUriToolCall } from "../lib/uri-guard-adapter.mjs";
 import { registerTools } from "../src/tools.js";
@@ -127,10 +128,7 @@ export default async function (pi: ExtensionAPI) {
   pi.on("context", async (event: any, ctx: any) => {
     if (!connected || bypassed) return;
     await recall.searchPending();
-    const userEntryIds = ctx.sessionManager
-      .buildContextEntries()
-      .filter((entry: any) => entry?.type === "message" && entry.message?.role === "user")
-      .map((entry: any) => entry.id as string);
+    const userEntryIds = getContextUserEntryIds(ctx.sessionManager);
     const messageIds = new WeakMap<object, string>();
     let userIndex = 0;
     for (const message of event.messages as any[]) {
