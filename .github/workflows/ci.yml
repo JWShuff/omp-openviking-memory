@@ -1,33 +1,40 @@
 name: ci
+
 on:
   push:
     branches: [main]
   pull_request:
   workflow_dispatch:
+
 permissions:
   contents: read
+
 jobs:
   check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: 20, cache: npm }
-      - run: npm ci --ignore-scripts
-      - run: npm test
-      - run: npm run typecheck
-      - run: npm pack --dry-run
 
-  publish:
-    if: startsWith(github.ref, 'refs/tags/v')
-    needs: check
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
-    steps:
-      - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 20, registry-url: 'https://registry.npmjs.org' }
-      - run: npm ci --ignore-scripts
-      - run: npm publish --provenance --access public
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      # The vendored extension's own suite (server-dependent tests self-skip).
+      - name: Tests
+        run: node --test tests/*.test.mjs
+
+      - name: Validate manifests
+        run: |
+          node -e "
+            const fs = require('fs');
+            for (const f of ['plugin.json', 'package.json']) JSON.parse(fs.readFileSync(f, 'utf8'));
+            const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+            if (!pkg.omp?.extensions?.length) throw new Error('package.json is missing omp.extensions');
+            for (const entry of pkg.omp.extensions) {
+              if (!fs.existsSync(entry)) throw new Error('missing extension entry: ' + entry);
+            }
+            console.log('manifests ok');
+          "

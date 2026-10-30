@@ -1,72 +1,23 @@
 {
-  "name": "omp-openviking-memory",
-  "version": "0.2.2",
-  "description": "Long-term semantic memory for Oh My Pi via OpenViking — auto-recall/capture, 11 viking:// tools, tree/write/edit, slash commands.",
+  "name": "openviking-memory",
+  "version": "0.4.22",
+  "description": "OpenViking memory and context for OMP — auto-recall, capture, takeover, MCP tools",
+  "private": true,
   "type": "module",
-  "license": "AGPL-3.0",
   "engines": {
-    "node": ">=18"
+    "node": ">=22.19.0"
   },
-  "keywords": [
-    "context-database",
-    "mcp",
-    "memory",
-    "oh-my-pi",
-    "omp",
-    "openviking",
-    "pi"
-  ],
-  "homepage": "https://github.com/cortexc0de/omp-openviking-memory#readme",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/cortexc0de/omp-openviking-memory.git"
-  },
-  "author": {
-    "name": "Volcano Engine",
-    "url": "https://github.com/volcengine"
+  "dependencies": {
+    "@modelcontextprotocol/client": "2.0.0"
   },
   "omp": {
     "extensions": [
-      "./extensions/openviking.ts"
+      "./index.ts"
     ]
   },
   "pi": {
     "extensions": [
-      "./extensions/openviking.ts"
+      "./index.ts"
     ]
-  },
-  "scripts": {
-    "test": "node --test tests/*.test.mjs",
-    "check": "node --check extensions/openviking.ts && node --check src/*.ts 2>&1 | head -n 50; echo check-done",
-    "typecheck": "tsc --noEmit",
-    "e2e": "node scripts/e2e-live.mjs",
-    "sync": "node scripts/sync.mjs"
-  },
-  "devDependencies": {
-    "typescript": "^5.9.3",
-    "@sinclair/typebox": "^0.34.0"
-  },
-  "peerDependencies": {
-    "@oh-my-pi/pi-coding-agent": ">=18.0.0"
-  },
-  "bugs": {
-    "url": "https://github.com/cortexc0de/omp-openviking-memory/issues"
-  },
-  "files": [
-    "extensions/",
-    "lib/",
-    "shared/",
-    "servers/",
-    "skills/",
-    "commands/",
-    "config.json",
-    "mcp.json",
-    "plugin.json",
-    "README.md",
-    "LICENSE"
-  ],
-  "publishConfig": {
-    "access": "public",
-    "provenance": true
   }
 }

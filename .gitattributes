@@ -1,5 +1,8 @@
-assets/*.png linguist-generated=false
-assets/*.png binary
-*.mjs linguist-generated=true
-lib/*.mjs linguist-generated=true
-servers/shared/*.mjs linguist-generated=true
+# Vendored from volcengine/OpenViking by scripts/sync-upstream.mjs.
+lib/** linguist-vendored=true
+tests/** linguist-vendored=true
+UPSTREAM-README.md linguist-vendored=true
+DESIGN.md linguist-vendored=true
+shared/** linguist-vendored=true linguist-generated=true
+skills/** linguist-vendored=true linguist-generated=true
+memory-plugin-shared/** linguist-vendored=true linguist-generated=true
