@@ -1,0 +1,54 @@
+name: upstream-sync
+
+on:
+  schedule:
+    # Mondays 14:00 UTC
+    - cron: "0 14 * * 1"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Upstream tag (defaults to the tag pinned in scripts/sync-upstream.mjs)
+        required: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Re-vendor from upstream
+        run: node scripts/sync-upstream.mjs ${{ inputs.tag }}
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Tests
+        run: node --test tests/*.test.mjs
+
+      - name: Open a PR when the tree changed
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git diff --quiet; then
+            echo "no upstream changes"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          branch="chore/upstream-sync-${GITHUB_RUN_ID}"
+          git checkout -b "$branch"
+          git add -A
+          git commit -m "chore: sync from upstream ${{ inputs.tag }}"
+          git push -u origin "$branch"
+          gh pr create \
+            --title "chore: upstream sync ${{ inputs.tag }}" \
+            --body "Automated re-vendor of the OpenViking extension from \`volcengine/OpenViking\`. Review the diff, then merge to publish it to \`omp plugin upgrade openviking-memory\`." \
+            --base main --head "$branch"
